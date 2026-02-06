@@ -19,4 +19,4 @@ pip install -r requirements.txt
 streamlit run app.py
 
 ## 🌐 Live Demo
-(Add deployed link here)
+https://education-dropout-prediction-bqm7hm3ikqrtbj4pztfp66.streamlit.app/
