@@ -63,22 +63,53 @@ input_dict["Attendance"] = attendance
 input_dict["CGPA"] = cgpa
 input_dict["ParentalSupport"] = parental_support_val
 
+# ---- Heuristic adjustments for academic risk ----
+
+# Attendance impact
+if attendance < 40:
+    for col in features:
+        if (
+            "attendance" in col.lower()
+            or "curricular" in col.lower()
+            or "units" in col.lower()
+        ):
+            input_dict[col] *= 0.3
+
+# CGPA impact
+if cgpa < 4:
+    for col in features:
+        if "grade" in col.lower():
+            input_dict[col] *= 0.3
+
+# Parental support impact
+if parental_support_val == 0:  # Low support
+    for col in features:
+        if "support" in col.lower() or "scholar" in col.lower():
+            input_dict[col] *= 0.5
+
+
 # Convert to ordered list
 inputs = [input_dict[feature] for feature in features]
 
 if st.button("🔍 Predict Student Status"):
-    prediction = model.predict([inputs])[0]
-    result = encoder.inverse_transform([prediction])[0]
+    proba = model.predict_proba([inputs])[0]
+    dropout_index = encoder.transform(["Dropout"])[0]
+    dropout_prob = proba[dropout_index]
 
-    if result == "Graduate":
-        st.success("✅ Low Risk of Dropout")
-        st.markdown("""
-        **Prediction:** Graduate 🎉  
-        This student is likely to successfully complete their studies.
-        """)
-    else:
-        st.error("⚠️ High Risk of Dropout")
-        st.markdown("""
-        **Prediction:** Dropout  
-        Early academic or emotional intervention is recommended.
-        """)
+
+if dropout_prob >= 0.6:
+    st.error(f"⚠️ High Risk of Dropout ({dropout_prob*100:.1f}% probability)")
+    st.markdown("""
+    **Why this result?**
+    - Very low attendance and/or CGPA
+    - Weak academic engagement indicators
+    - Low parental support increases risk
+    """)
+else:
+    st.success(f"✅ Low Risk of Dropout ({(1-dropout_prob)*100:.1f}% probability)")
+    st.markdown("""
+    **Why this result?**
+    - Strong or stable academic indicators
+    - Adequate attendance and performance
+    - Support factors reduce dropout risk
+    """)
