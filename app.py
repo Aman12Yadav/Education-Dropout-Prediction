@@ -12,7 +12,7 @@ def load_model():
     return train_model()
 
 model, features, encoder = load_model()
-st.write("Model expects features in this order:", features)
+#st.write("Model expects features in this order:", features)
 
 if "age" not in st.session_state:
     st.session_state.age = 20
