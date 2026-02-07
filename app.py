@@ -12,6 +12,7 @@ def load_model():
     return train_model()
 
 model, features, encoder = load_model()
+st.write("Model expects features in this order:", features)
 
 if "age" not in st.session_state:
     st.session_state.age = 20
@@ -50,7 +51,18 @@ gender_val = 1 if gender == "Male" else 0
 support_map = {"Low": 0, "Medium": 1, "High": 2}
 parental_support_val = support_map[parental_support]
 
-inputs = [age, gender_val, attendance, cgpa, parental_support_val]
+# Create full feature vector with default values
+input_dict = {feature: 0 for feature in features}
+
+# Map UI values to correct feature names
+input_dict["Age"] = age
+input_dict["Gender"] = gender_val
+input_dict["Attendance"] = attendance
+input_dict["CGPA"] = cgpa
+input_dict["ParentalSupport"] = parental_support_val
+
+# Convert to ordered list
+inputs = [input_dict[feature] for feature in features]
 
 if st.button("🔍 Predict Student Status"):
     prediction = model.predict([inputs])[0]
