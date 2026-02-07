@@ -11,7 +11,7 @@ st.write("Predict whether a student will Dropout or Graduate")
 def load_model():
     return train_model()
 
-model, features, encoder = load_model()
+model, features, encoder, feature_means = load_model()
 #st.write("Model expects features in this order:", features)
 
 if "age" not in st.session_state:
@@ -52,7 +52,9 @@ support_map = {"Low": 0, "Medium": 1, "High": 2}
 parental_support_val = support_map[parental_support]
 
 # Create full feature vector with default values
-input_dict = {feature: 0 for feature in features}
+# Start with mean values (safe defaults)
+input_dict = feature_means.copy()
+
 
 # Map UI values to correct feature names
 input_dict["Age"] = age
