@@ -92,24 +92,28 @@ if parental_support_val == 0:  # Low support
 inputs = [input_dict[feature] for feature in features]
 
 if st.button("🔍 Predict Student Status"):
+
+    # Get probabilities
     proba = model.predict_proba([inputs])[0]
+
     dropout_index = encoder.transform(["Dropout"])[0]
     dropout_prob = proba[dropout_index]
 
+    # Decision logic
+    if dropout_prob >= 0.6:
+        st.error(f"⚠️ High Risk of Dropout ({dropout_prob*100:.1f}% probability)")
+        st.markdown("""
+        **Why this result?**
+        - Very low attendance and/or CGPA
+        - Weak academic engagement indicators
+        - Low parental support increases risk
+        """)
+    else:
+        st.success(f"✅ Low Risk of Dropout ({(1-dropout_prob)*100:.1f}% probability)")
+        st.markdown("""
+        **Why this result?**
+        - Stable academic performance
+        - Adequate attendance
+        - Support factors reduce risk
+        """)
 
-if dropout_prob >= 0.6:
-    st.error(f"⚠️ High Risk of Dropout ({dropout_prob*100:.1f}% probability)")
-    st.markdown("""
-    **Why this result?**
-    - Very low attendance and/or CGPA
-    - Weak academic engagement indicators
-    - Low parental support increases risk
-    """)
-else:
-    st.success(f"✅ Low Risk of Dropout ({(1-dropout_prob)*100:.1f}% probability)")
-    st.markdown("""
-    **Why this result?**
-    - Strong or stable academic indicators
-    - Adequate attendance and performance
-    - Support factors reduce dropout risk
-    """)
